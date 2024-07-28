@@ -67,3 +67,23 @@ export class NotAuthGuard {
     return true;
   }
 }
+
+@Injectable()
+export class AdminAuthGuard {
+  constructor(private prisma: PrismaService) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const userId = request.headers['userId'];
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (user.admin) {
+      return true;
+    }
+    return false;
+  }
+}
